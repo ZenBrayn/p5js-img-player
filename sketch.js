@@ -10,7 +10,7 @@ function preload() {
   var img_fn_prefix = "pt_img-";
   var img_ext = ".png"
   var img_min_cntr = 100;
-  var img_max_cntr = 10000;
+  var img_max_cntr = 5000;
   var img_delta_cntr = 100;
   n_imgs = (img_max_cntr - img_min_cntr) / img_delta_cntr + 1;
 
@@ -41,25 +41,33 @@ function setup() {
   // used for rock'ing animation
   frame_forward = true;
 
-  show_img_cntr = true;
-  show_file_name = true;
+  // display info
+  show_info = true;
+  show_interface_help = true;
 }
 
 function draw() {
   nextFrame("loop");
-  displayImg(show_img_cntr, show_file_name);
-}
+  displayImg(show_info);
 
-function displayImg(show_img_cntr, show_file_name) {
-  background(255);
-  image(imgs[cur_frame], 0, 0);
-  
-  if (show_img_cntr) {
-    displayImgCnt(cur_frame + 1);
+  if (show_info) {
+    displayInfo();
   }
 
-  if (show_file_name) {
-    displayFileName(cur_frame);
+  if (show_interface_help && frameCount === 1) {
+    noLoop();
+    frames_playing = false;
+    displayInterfaceHelp();
+    show_interface_help = false;
+  }
+}
+
+function displayImg(show_info) {
+  background(255);
+  image(imgs[cur_frame], 0, 0);
+
+  if (show_info) {
+    displayInfo();
   }
 }
 
@@ -86,15 +94,16 @@ function nextFrame(mode = "loop") {
   }
 }
 
-function displayImgCnt(cntr) {
+function displayInfo() {
   // draw a slightly transparent box
   // and display the frame counter inside
-  var display_box_width = width * 0.1;
+  var display_box_width = width;
   var text_size = width * 0.015;
   var display_box_height = text_size * 1.5;
+  var fn = img_names[cur_frame];
   push();
   noStroke();
-  fill(200, 200);
+  fill(200, 100);
   rect(0, 0, display_box_width, display_box_height)
   pop();
 
@@ -103,29 +112,52 @@ function displayImgCnt(cntr) {
   textSize(text_size);
   text("Frame: " + (cur_frame + 1), text_size * 0.5, text_size * 0.1);
   pop();
+
+  push();
+  textAlign(RIGHT, TOP);
+  textSize(text_size);
+  text(fn, width - text_size * 0.5, text_size * 0.1);
+  pop();
 }
 
-function displayFileName(cntr) {
-  var fn = img_names[cntr];
 
-  // draw a slightly transparent box
-  // and display the file name
-  var text_size = width * 0.015;
-  var display_box_width = fn.length * 8;
-  var display_box_height = text_size * 1.5;
-  var rect_start_x = width - display_box_width;
-  var rect_start_y = height - display_box_height;
+function displayInterfaceHelp() {
   push();
   noStroke();
   fill(200, 200);
-  rect(rect_start_x, rect_start_y, display_box_width, display_box_height);
+  rect(0, 0, width, height);
   pop();
 
   push();
-  textAlign(LEFT, TOP);
-  textSize(text_size);
-  text(fn, rect_start_x + text_size * 0.5, rect_start_y + text_size * 0.1);
-  pop(); 
+  stroke(0);
+  strokeWeight(width * 0.002);
+  line(width / 3, 0, width / 3, height);
+  
+  push();
+  stroke(0);
+  strokeWeight(width * 0.002);
+  line(width * 2 / 3, 0, width * 2 / 3, height);
+
+  noStroke();
+  fill(0);
+  textSize(width * 0.04);
+  textAlign(CENTER, CENTER);
+  text("<< 1 Frame", (width / 3) * 0.5, height * 0.5);
+  pop()
+
+  noStroke();
+  fill(0);
+  textSize(width * 0.04);
+  textAlign(CENTER, CENTER);
+  text("Play/Pause", width * 0.5, height * 0.5);
+  pop()
+
+  noStroke();
+  fill(0);
+  textSize(width * 0.04);
+  textAlign(CENTER, CENTER);
+  text("1 Frame >>", width - (width / 3 * 0.5), height * 0.5);
+  pop()
 }
 
 
@@ -135,7 +167,6 @@ function displayFileName(cntr) {
 // middle: pause animation
 // right: increment frame counter
 function mousePressed() {
-  print("mouse pressed: " + mouseX);
   // decrement frame
   if (mouseX <= width / 3) {
     cur_frame -= 1;
@@ -144,7 +175,7 @@ function mousePressed() {
     }
 
     if (!frames_playing) {
-      displayImg(show_img_cntr, show_file_name);
+      displayImg(show_info);
     }
   }
 
@@ -165,7 +196,7 @@ function mousePressed() {
     }
 
     if (!frames_playing) {
-      displayImg(show_img_cntr, show_file_name);
+      displayImg(show_info);
     }
   }
 }
